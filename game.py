@@ -1,8 +1,9 @@
 import random
+from bets import BetType
 
 class Roulette():
     def __init__(self, double_zeros = True):
-        self.vals = [i for i in range(38 - double_zeros) - double_zeros]
+        self.vals = [i - int(double_zeros) for i in range(38 - int(double_zeros))]
 
     def spin(self):
         return random.choice(self.vals)
@@ -35,5 +36,6 @@ class Roulette():
             for bet in player.get_bets():
                 money += self.pay_out(bet, spin)
             player.wins(money)
+            player.clear_bet()
 
         return money
