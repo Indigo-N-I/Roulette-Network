@@ -5,6 +5,7 @@ from bets import Bet, BetType
 class Player(ABC):
 
     def __init__(self, start_money = 1000):
+        self.start_money = start_money
         self.money = start_money
         self.history = []
         self.bets = []
@@ -43,6 +44,15 @@ class Player(ABC):
 
     def get_max_money(self):
         return self.max_money
+
+    def get_num_rounds(self):
+        return len(self.history)
+
+    def reset(self):
+        self.money = self.start_money
+        self.history = []
+        self.bets = []
+        self.max_money = self.money
 
 class ColorBetter(Player):
     def __init__(self, start_money = 1000, bet_amount = 100):

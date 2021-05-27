@@ -1,9 +1,11 @@
 import random
-from bets import BetType
+from bets import BetType, ALL_BETS
+import numpy as np
 
 class Roulette():
     def __init__(self, double_zeros = True):
         self.vals = [i - int(double_zeros) for i in range(38 - int(double_zeros))]
+        self.prev_rounds = []
 
     def spin(self):
         return random.choice(self.vals)
@@ -37,5 +39,11 @@ class Roulette():
                 money += self.pay_out(bet, spin)
             player.wins(money)
             player.clear_bet()
+        self.prev_rounds.insert(0, [spin in bet for bet in ALL_BETS])
+        return np.array([spin in bet for bet in ALL_BETS])
 
-        return money
+    def get_prev_rounds(self, rounds = 2):
+        prev_rounds = [self.prev_rounds[i] for i in range(rounds) if i < len(self.prev_rounds)]
+        while len(prev_rounds) < rounds:
+            prev_rounds.append([0 for i in range(159)])
+        return prev_rounds
