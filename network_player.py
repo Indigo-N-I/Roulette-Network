@@ -45,6 +45,12 @@ class NetworkPlayer(Player):
         new_player = NetworkPlayer(network = new_network, start_money = player1.start_money)
         return new_player
 
+    def save(self, save_file):
+        file = open(save_file, 'w')
+        for layer in self.network.get_layers():
+            file.write(layer.get_weights + '\n')
+        file.close()
+
 
 if __name__ == 'main':
     test_network = NerualNetwork()

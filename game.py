@@ -6,6 +6,7 @@ class Roulette():
     def __init__(self, double_zeros = True):
         self.vals = [i - int(double_zeros) for i in range(38 - int(double_zeros))]
         self.prev_rounds = []
+        self.round = 0
 
     def spin(self):
         return random.choice(self.vals)
@@ -32,6 +33,7 @@ class Roulette():
         return 0
 
     def play_round(self, players):
+        self.round += 1
         spin = self.spin()
         for player in players:
             money = 0
@@ -40,6 +42,9 @@ class Roulette():
             player.wins(money)
             player.clear_bet()
         self.prev_rounds.insert(0, [spin in bet for bet in ALL_BETS])
+
+        # if self.round % 1000 == 999:
+        #     print(f'{self.round} rounds were played at the table')
         return np.array([spin in bet for bet in ALL_BETS])
 
     def get_prev_rounds(self, rounds = 2):

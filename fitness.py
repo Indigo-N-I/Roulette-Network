@@ -6,6 +6,7 @@ class PlayerData():
         # print(max_money)
         self.max_money = max_money
         self.rounds = rounds
+        # print(self.rounds)
 
     def max_max_money(self):
         return np.max(self.max_money)
@@ -25,6 +26,12 @@ class PlayerData():
     def get_player(self):
         return self.player
 
+    def get_amount_bet(self):
+        return self.player.amount_bet()
+
     def __str__(self):
         return f'Rounds: \n  {np.max(self.rounds)} max\n  {np.min(self.rounds)} min \n  {np.mean(self.rounds)} avg\n  {np.median(self.rounds)} median\n  {np.std(self.rounds)} std\
                 \nMax Money:\n  {np.max(self.max_money)} max \n  {np.min(self.max_money)} min \n  {np.mean(self.max_money)} avg\n  {np.median(self.max_money)} median\n  {np.std(self.rounds)} std'
+
+    def save(self, file_name):
+        self.player.save(file_name)

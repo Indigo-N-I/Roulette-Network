@@ -95,7 +95,7 @@ class NerualNetwork():
 
 def drift(array, prob = .2, dist = .2):
     changing = np.random.random(array.shape)
-    drift_amt = np.random.random(array.shape) * dist
+    drift_amt = np.random.random(array.shape) * dist - (dist/2)
 
     changing = changing < prob
     array += changing * drift_amt
