@@ -123,3 +123,6 @@ class Bet():
 
     def get_bet(self):
         return self.wager
+
+    def get_type(self):
+        return self.type

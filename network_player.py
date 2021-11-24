@@ -2,7 +2,7 @@ from network import NerualNetwork, cross_networks, ReluLayer, FlattenLayer
 from player import Player
 from bets import ALL_BETS, ALL_BETS_ENUM, Bet
 import numpy as np
-
+import json
 
 # temporarly not letting players know if they won previous rounds
 class NetworkPlayer(Player):
@@ -24,6 +24,7 @@ class NetworkPlayer(Player):
                      if individual_bets[i] != 0]
 
         self.won = 0
+        self.round += 1
 
     def wins(self, money):
         self.money += money
@@ -48,7 +49,8 @@ class NetworkPlayer(Player):
     def save(self, save_file):
         file = open(save_file, 'w')
         for layer in self.network.get_layers():
-            file.write(layer.get_weights + '\n')
+            # print(json.dumps())
+            file.write(str(list(layer.get_weights())) + '\n')
         file.close()
 
 

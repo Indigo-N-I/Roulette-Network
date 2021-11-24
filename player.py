@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import random
 from bets import Bet, BetType
+import numpy as np
 
 class Player(ABC):
 
@@ -10,6 +11,10 @@ class Player(ABC):
         self.history = []
         self.bets = []
         self.max_money = start_money
+        self.round = 0
+        self.rounds = []
+        self.max_monies = []
+        self.num_bet_history = []
         super().__init__()
 
     @abstractmethod
@@ -37,7 +42,11 @@ class Player(ABC):
         return self.money
 
     def clear_bet(self):
+        self.num_bet_history.append(len(self.bets))
         self.bets = []
+
+    def avg_num_bets(self):
+        return sum(self.num_bet_history)/len(self.num_bet_history)
 
     def get_bets(self):
         return self.bets
@@ -49,10 +58,32 @@ class Player(ABC):
         return len(self.history)
 
     def reset(self):
+        self.rounds.append(self.round)
+        self.max_monies.append(self.max_money)
         self.money = self.start_money
         self.history = []
         self.bets = []
         self.max_money = self.money
+        self.round = 0
+
+    def max_max_money(self):
+        return np.max(self.max_monies)
+
+    def max_rounds(self):
+        return np.max(self.rounds)
+
+    def median_money(self):
+        return np.median(self.max_monies)
+
+    def avg_rounds(self):
+        return np.mean(self.rounds)
+
+    def median_rounds(self):
+        return np.median(self.rounds)
+
+    def total_games(self):
+        return len(self.rounds)
+
 
 class ColorBetter(Player):
     def __init__(self, start_money = 1000, bet_amount = 100):

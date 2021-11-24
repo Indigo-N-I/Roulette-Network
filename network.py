@@ -39,6 +39,8 @@ class ReluLayer(NetworkLayer):
         def relu(value):
             return value * self.relu_constant * (value > 0)
 
+        # print(input)
+
         output = np.sum(input * self.weights, axis = 1)
         assert output.shape[0] == self.output_shape, f'output.shape {output.shape} != output_shape {self.output_shape}'
         return relu(output)
@@ -51,7 +53,10 @@ class FlattenLayer(NetworkLayer):
         def relu(value):
             return value  * (value > 0)
 
+        # print(input)
+        # print("weights", self.weights)
         pre_flip = np.matmul(input, self.weights)
+        # print(pre_flip)
         return relu(pre_flip).T
 
 class OutputLayer(ReluLayer):
@@ -65,10 +70,13 @@ class OutputLayer(ReluLayer):
         def sigmoid(x):
             return 1/(1 + np.exp(-x))
 
+        # print(input)
         output = relu(np.sum(input * self.weights, axis = 1))
 
+        # print(output)
         output[0] = sigmoid(output[0])
         output[1:] = softmax(output[1:])
+        # print(output)
 
         return output
 
@@ -85,6 +93,7 @@ class NerualNetwork():
         x = input
         for layer in self.network_stack:
             x = layer.forward(x)
+            # print(x)
         return x
 
     def get_weights(self):
@@ -93,7 +102,7 @@ class NerualNetwork():
     def get_layers(self):
         return self.network_stack
 
-def drift(array, prob = .2, dist = .2):
+def drift(array, prob = .3, dist = .2):
     changing = np.random.random(array.shape)
     drift_amt = np.random.random(array.shape) * dist - (dist/2)
 

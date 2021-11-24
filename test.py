@@ -10,83 +10,76 @@ import time
 
 table1 = Roulette()
 
-def test(test_player, TEST = 1000):
-    rounds = []
-    max_money = []
+def test(test_players, rounds = 5000):
 
-    for i in range(TEST):
-        test_player.reset()
-        round = 0
-        if i % 100 == 99:
-            print(f'done with {i} tests')
-
-        player_money = test_player.money
-        prev_round = 0
-
-        # tic1 = time.perf_counter()
-        # round_time = []
-        while 1:
-            # tic = time.perf_counter()
-            if not (test_player.can_play() and prev_round != player_money):
-                break
-            player_money = test_player.money
+    for i in range(rounds):
+        for test_player in test_players:
+            # print(test_player.network)
+            if not test_player.can_play():
+                test_player.reset()
             test_player.make_bets(table1.get_prev_rounds(5))
-            table1.play_round([test_player])
 
-            # if round %1000 == 0:
-            #     print(f"test_player has {test_player.money} dollars")
-            prev_round = test_player.money
-            round += 1
-            # toc = time.perf_counter()
-            # round_time.append(toc - tic)
-        # toc1 = time.perf_counter()
-        # print(f"Round done in the tutorial in {toc1 - tic1:0.4f} with avg of {np.mean(round_time)} seconds\
-              # , over {round} rounds")
-        max_money.append(test_player.get_max_money())
-        rounds.append(round)
+        # if i % 100 == 99:
+        #     print(f'done with {i} rounds')
 
-    return PlayerData(test_player, max_money, rounds)
+        table1.play_round(test_players)
 
 def make_neural_player():
-    flatten = FlattenLayer(159, np.array([random.random() - 1 for i in range(159)]), 159)
-    relu = ReluLayer(5, np.array([[random.random() - 1 for i in range(5)] for i in range (64)]), 64)
-    output = OutputLayer(64, np.array([[random.random() - 1 for i in range(64)] for i in range (160)]), 160)
+    layer1 = 64
+    layer2 = 32
+    flatten = FlattenLayer(159, np.array([random.random() - .5 for i in range(159)]), 159)
+    # print(flatten.weights)
+    relu = ReluLayer(5, np.array([[random.random() - .5 for i in range(5)] for i in range (layer1)]), layer1)
+    # print(relu.weights)
+    relu1 = ReluLayer(layer1, np.array([[random.random() - .5 for i in range(layer1)] for i in range (layer2)]), layer2)
+    output = OutputLayer(layer2, np.array([[random.random() - .5 for i in range(layer2)] for i in range (160)]), 160)
+    # print(output.weights)
 
     network = NerualNetwork()
     network.add_layer(flatten)
     network.add_layer(relu)
+    network.add_layer(relu1)
     network.add_layer(output)
 
     return NetworkPlayer(network = network, start_money = 5000)
 
 def get_one(possible, fitness, out_of = 3):
-    return max([random.choice(possible) for i in range(3)], key = fitness)
+    a = [random.choice(possible) for i in range(3)]
+    # print([fitness(c) for c in a])
+    b = max(a, key = fitness)
+    # print(fitness(b))
+    return b
 
-def get_mating_pairs(possible, fitness, num_pairs):
+def get_mating_pairs(possible, fitness, num_pairs, outof = 3):
     # print(possible)
-    return [(get_one(possible, fitness), get_one(possible, fitness)) for i in range(num_pairs)]
+    return [(get_one(possible, fitness, outof), get_one(possible, fitness, outof)) for i in range(num_pairs)]
 
 def fitness(participant):
-    return participant.median_rounds()
+    return participant.avg_rounds() - (participant.avg_num_bets() - 5) ** 1.1
 
-TOTAL_PLAYERS = 50
+TOTAL_PLAYERS = 100
 GENERATIONS = 200
-GAMES = 20
+rounds = 2000
 players = []
 best_fitness = 0
 for i in range(TOTAL_PLAYERS):
-    players.append(test(make_neural_player(), GAMES))
+    players.append(make_neural_player())
+
+table1.sim_rounds(5)
 
 for i in range(GENERATIONS):
+    test(players, int(rounds))
     players.sort(key = lambda x: fitness(x), reverse = True)
-    fit = fitness(players[0])
-    print(f'At generation {i + 1} the fitness was {fit}')
+    fit = players[0].avg_rounds()
+    rounds = players[0].avg_rounds() * 25
+    print(f'At generation {i + 1} the fitness was {fit}, best fit player has played {players[0].total_games()}')
     print([fitness(player) for player in players])
     if fit > best_fitness:
         best_fitness = fit
         players[0].save(f'round{i}_fitness{fit}.txt')
     players = players[:TOTAL_PLAYERS]
-    mating_pairs = get_mating_pairs(players, fitness, TOTAL_PLAYERS//2)
+    # print([fitness(player) for player in players])
+    mating_pairs = get_mating_pairs(players, fitness, TOTAL_PLAYERS//2, 5)
 
     for pair in mating_pairs:
-        players.append( test(pair[0].get_player().mate(pair[1].get_player()), GAMES))
+        players.append(pair[0].mate(pair[1]))
